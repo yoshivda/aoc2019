@@ -1,5 +1,6 @@
 import itertools
 
+
 def solve(filename, inputs):
     prog = []
     with open(filename) as f:
