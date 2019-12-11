@@ -3,7 +3,7 @@ base = 0
 direction = 0
 color_mode = True
 x = y = 0
-painted_panels = dict()
+painted_panels = {(0, 0): 1}
 
 
 def solve(filename):
@@ -14,7 +14,14 @@ def solve(filename):
     length = len(prog)
     while 0 <= i < length:
         i = calc(i)
-    return len(painted_panels)
+    max_x, max_y = max(map(lambda t: t[0], painted_panels.keys())), max(map(lambda t: t[1], painted_panels.keys()))
+    for y in range(max_y + 1):
+        for x in range(max_x + 1):
+            if (x, y) in painted_panels and painted_panels[(x, y)] == 1:
+                print("█", end="")
+            else:
+                print(" ", end="")
+        print()
 
 
 def calc(i):
@@ -50,11 +57,11 @@ def calc(i):
                 direction = (direction + get_value(i + 1, mode1) * 2 - 1) % 4
 
                 if direction == 0:
-                    y += 1
+                    y -= 1
                 elif direction == 1:
                     x += 1
                 elif direction == 2:
-                    y -= 1
+                    y += 1
                 else:
                     x -= 1
             color_mode = not color_mode
@@ -112,6 +119,3 @@ def get_value(i, mode):
 
 if __name__ == "__main__":
     print(solve("input.txt"))
-
-
-
