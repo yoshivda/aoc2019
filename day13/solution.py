@@ -1,8 +1,15 @@
+import time
+
 prog = []
 base = 0
 output_mode = 0
 tiles = dict()
 x = y = 0
+ball_x = ball_y = 0
+paddle_x = paddle_y = 0
+score = 0
+ball_dir = 0
+max_x_coord = 0
 
 
 def solve1(filename):
@@ -16,12 +23,53 @@ def solve1(filename):
     return sum(v == 2 for v in tiles.values())
 
 
+def draw_screen():
+    global ball_x
+    global ball_y
+    global paddle_x
+    global paddle_y
+    global ball_dir
+    print("\n\n")
+    global max_x_coord
+    max_x, max_y = max(map(lambda t: t[0], tiles.keys())), max(map(lambda t: t[1], tiles.keys()))
+    max_x_coord = max_x
+
+    print(score)
+    for j in range(max_y + 1):
+        for i in range(max_x + 1):
+            if (i, j) in tiles:
+                tile = tiles[(i, j)]
+                if tile == 0:
+                    res = " "
+                elif tile == 1:
+                    res = "█"
+                elif tile == 2:
+                    res = "#"
+                elif tile == 3:
+                    res = "_"
+                    paddle_x = i
+                    paddle_y = j
+                else:
+                    res = "·"
+                    if i < ball_x:
+                        ball_dir = -1
+                    elif i > ball_x:
+                        ball_dir = 1
+                    else:
+                        ball_dir = 0
+                    ball_x = i
+                    ball_y = j
+                print(res, end="")
+        print()
+
+
 def calc(i):
     global prog
     global base
     global x
     global y
     global output_mode
+    global score
     op = prog[i] % 100
     mode1 = prog[i] % 1000 // 100
     mode2 = prog[i] % 10000 // 1000
@@ -35,8 +83,10 @@ def calc(i):
             prog[get_index(i + 3, mode3)] = get_value(i + 1, mode1) * get_value(i + 2, mode2)
             return i + 4
         elif op == 3:
-            data = int(input("Please provide input\n"))
+            data = ball_x - paddle_x
+
             prog[get_index(i + 1, mode1)] = data
+            # time.sleep(.06)
             return i + 2
         elif op == 4:
             if output_mode == 0:
@@ -44,7 +94,11 @@ def calc(i):
             elif output_mode == 1:
                 y = get_value(i + 1, mode1)
             elif output_mode == 2:
-                tiles[(x, y)] = get_value(i + 1, mode1)
+                if x == -1:
+                    score = get_value(i + 1, mode1)
+                else:
+                    tiles[(x, y)] = get_value(i + 1, mode1)
+                draw_screen()
             output_mode = (output_mode + 1) % 3
             return i + 2
         elif op == 5:
