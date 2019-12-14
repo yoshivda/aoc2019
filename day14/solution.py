@@ -1,3 +1,5 @@
+from math import ceil
+
 def read(filename):
     reactions = dict()
     with open(filename) as f:
@@ -9,12 +11,13 @@ def read(filename):
     return reactions
 
 
-def solve1(filename):
-    reactions = read(filename)
-    required = dict(reactions["FUEL"][1])
+def solve1(reactions, fuel):
+    required = {"FUEL": fuel}
     leftovers = dict()
-    while len(required) > 1:
+    while len(required) > 1 or "FUEL" in required:
         cp = required.copy()
+
+        # Filter leftovers from requirements
         for prod, quant in cp.items():
             if prod in leftovers:
                 required[prod] -= min(leftovers[prod], quant)
@@ -22,25 +25,23 @@ def solve1(filename):
                 if leftovers[prod] == 0:
                     del leftovers[prod]
 
-        if "ORE" in required and required["ORE"] == 180697:
-            print(required, leftovers)
+        # Make requirements
         cp = required.copy()
         for prod, quant in cp.items():
             if prod == "ORE":
                 continue
 
             prod_quant, reqs = reactions[prod]
-
             if quant == 0:
                 required[prod] -= quant
                 if required[prod] == 0:
                     del required[prod]
                 continue
 
-            times = 1
-            while prod_quant < quant:
-                prod_quant += reactions[prod][0]
-                times += 1
+            # Calculate how many times we need the formula
+            times = ceil(quant / reactions[prod][0])
+            prod_quant = reactions[prod][0] * times
+
 
             if prod_quant > quant:
                 # More produced than necessary
@@ -56,21 +57,41 @@ def solve1(filename):
                 # Needs more production
                 required[prod] -= prod_quant
 
+            # No longer needed
             if required[prod] == 0:
                 del required[prod]
 
+            # Requirement was solved with leftovers only
             if quant == 0:
                 continue
 
+            # Add all requirements to the list
             for p, q in reqs:
                 if p in required:
                     required[p] += q * times
                 else:
                     required[p] = q * times
-    if "ORE" in leftovers:
-        return required["ORE"] - leftovers["ORE"]
     return required["ORE"]
 
 
+def solve2(filename):
+    reactions = read(filename)
+    return bsearch(0, 10**12, reactions)
+
+
+def bsearch(l, h, reactions):
+    highest = 0
+    while h - l > 1:
+        val = l + (h - l) // 2
+        if solve1(reactions, val) > 10**12:
+            h = val
+        else:
+            if val > highest:
+                highest = val
+            l = val
+    return highest
+
+
 if __name__ == "__main__":
-    print(solve1("input.txt"))
+    # print(solve1(read("input.txt"), 1))
+    print(solve2("input.txt"))
