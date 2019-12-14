@@ -86,7 +86,7 @@ def calc(i):
             data = ball_x - paddle_x
 
             prog[get_index(i + 1, mode1)] = data
-            # time.sleep(.06)
+            time.sleep(.07)
             return i + 2
         elif op == 4:
             if output_mode == 0:
