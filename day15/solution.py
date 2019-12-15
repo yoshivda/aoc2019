@@ -7,18 +7,17 @@ def solve(filename):
     discovered = {(0, 0): 1}
     q = deque()
     q.append(((0, 0), 0, prog, 0, 0))
-    last_path = 0
+    o_pos = None
     while len(q) > 0:
         # print([(x, y) for ((x, y), _, _, _, _) in q])
         pos, i_orig, prog_orig, base_orig, path = q.popleft()
-        last_path = path
         for in_value, new_pos in surrounding_positions(pos).items():
             if new_pos not in discovered:
                 i, res, prog, base = calc(i_orig, prog_orig, base_orig, in_value)
                 discovered[new_pos] = res
                 if res == 2:
-                    return path + 1
-                elif res == 1:
+                    o_pos = new_pos
+                if res >= 1:
                     q.append((new_pos, i, prog, base, path + 1))
 
     print(discovered)
@@ -38,6 +37,16 @@ def solve(filename):
             else:
                 print(" ", end="")
         print()
+
+    cnt = 0
+    oxigen = {o_pos}
+    while not all(k in oxigen for k in discovered.keys() if discovered[k] == 1):
+        cnt += 1
+        for p in oxigen.copy():
+            for _, n in surrounding_positions(p).items():
+                if discovered[n] > 0 and n not in oxigen:
+                    oxigen.add(n)
+    return cnt
 
 
 def surrounding_positions(t):
