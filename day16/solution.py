@@ -16,5 +16,23 @@ def solve1(filename):
     return list(map(str, out))
 
 
+def solve2(filename):
+    with open(filename) as f:
+        row = f.readline().strip()
+        offset = int(row[:7])
+        num = (list(map(int, row)) * 10_000)[offset:]
+
+    for _ in range(100):
+        old = 0
+        res = []
+        for i in list(reversed(num)):
+            c = (i + old) % 10
+            res.append(c)
+            old = c
+        num = list(reversed(res))
+    return int("".join(map(str, num[:8])))
+
+
 if __name__ == "__main__":
-    print("".join(solve1("input.txt")[:8]))
+    # print("".join(solve1("input.txt")[:8]))
+    print(solve2("input.txt"))
