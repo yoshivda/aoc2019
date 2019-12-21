@@ -21,21 +21,22 @@ def solve(filename):
     coords = read(filename)
     max_x, max_y = max(coords.keys(), key=lambda t: t[0])[0], max(coords.keys(), key=lambda t: t[1])[1]
     keys = [(x, y) for x in range(max_x + 1) for y in range(max_y + 1) if coords[(x, y)].islower()]
-    # doors = {coords[(x, y)]: (x, y) for x in range(max_x + 1) for y in range(max_y + 1) if coords[(x, y)].isupper()}
-    orig = [(x, y) for x in range(max_x + 1) for y in range(max_y + 1) if coords[(x, y)] == "@"]
-    paths = {coords[p]: bfs_keys(p, coords, max_x, max_y) for p in keys + orig}
-    print(paths)
-    return total_steps("@", frozenset(), paths, len(keys))
+    origs = [(x, y) for x in range(max_x + 1) for y in range(max_y + 1) if coords[(x, y)] in "@!$%"]
+    paths = {coords[p]: bfs_keys(p, coords, max_x, max_y) for p in keys + origs}
+    res = total_steps(frozenset({"!", "@", "$", "%"}), frozenset(), paths, len(keys))
+    print(len(states))
+    return res
 
 
-def total_steps(char, keys, paths, no_keys):
-    if (char, keys) in states:
-        return states[(char, keys)]
+def total_steps(positions, keys, paths, no_keys):
+    if (positions, keys) in states:
+        return states[(positions, keys)]
     if len(keys) == no_keys:
         return 0
-    res = min((total_steps(key, frozenset(keys | {key}), paths, no_keys) + paths[char][key][0] for key in paths[char].keys()
-              if all(x in keys for x in paths[char][key][1]) and key not in keys), default=1000000)
-    states[(char, keys)] = res
+    res = min((total_steps(frozenset((positions - {p}) | {key}), frozenset(keys | {key}), paths, no_keys) + paths[p][key][0]
+               for p in positions for key in paths[p].keys()
+               if all(x in keys for x in paths[p][key][1]) and key not in keys), default=(987654321, 0, 0))
+    states[(positions, keys)] = res
     return res
 
 
@@ -68,4 +69,4 @@ def surrounding_positions(x, y, max_x, max_y):
 
 
 if __name__ == "__main__":
-    print(solve("input.txt"))
+    print(solve("input2.txt"))
