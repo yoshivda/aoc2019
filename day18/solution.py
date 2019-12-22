@@ -55,7 +55,6 @@ def bfs_keys(t, coords, max_x, max_y):
                     discovered.add((new_x, new_y))
                     if char.islower():
                         paths[char] = (length + 1, reqs)
-                        # continue
                     elif char.isupper():
                         reqs.add(char.lower())
                     q.append((new_x, new_y, length + 1, reqs.copy()))
