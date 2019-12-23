@@ -1,4 +1,5 @@
 import threading
+from time import sleep
 
 done = False
 
@@ -7,14 +8,49 @@ def solve(filename):
     with open(filename) as f:
         prog = list(map(int, f.readline().split(",")))
     comps = [Computer(prog.copy(), i) for i in range(50)]
+    comps.append(Nat())
     for c in comps:
         c.computers = comps
-    for c in comps:
+    for c in (comps[-1:] + comps[:-1]):
         c.run()
-    while not done:
-        pass
-    for c in comps:
-        c.stop()
+
+
+class Nat:
+    def __init__(self):
+        self.inputs = []
+        self.computers = []
+        self.outputs = []
+        self.t = None
+        self.sent = None
+
+    def run(self):
+        print("Starting NAT")
+        self.computers = self.computers[:-1]
+        self.t = threading.Thread(target=self.calc)
+        self.t.start()
+
+    def stop(self):
+        self.t.join()
+
+    def calc(self):
+        res = None
+        while True:
+            if len(self.inputs) > 0:
+                res = self.inputs[-1]
+                self.inputs = []
+            if self.idle():
+                if self.sent and res[1] == self.sent:
+                    print("Result:", res[1])
+                    for c in self.computers:
+                        c.stop()
+                    return
+                elif res:
+                    self.sent = res[1]
+                    self.computers[0].inputs.extend(res)
+                    sleep(2)
+
+    def idle(self):
+        return not(any(c.inputs for c in self.computers)) and all(c.tries > 10 for c in self.computers)
 
 
 class Computer:
@@ -26,6 +62,7 @@ class Computer:
         self.inputs = [address]
         self.computers = []
         self.outputs = []
+        self.tries = 0
 
     def run(self):
         print("Starting", self.address)
@@ -36,7 +73,6 @@ class Computer:
         self.t.join()
 
     def calc(self):
-        global done
         i = 0
 
         while i < len(self.prog):
@@ -54,8 +90,10 @@ class Computer:
                     i += 4
                 elif op == 3:
                     if len(self.inputs) > 0:
+                        self.tries = 0
                         data = self.inputs.pop(0)
                     else:
+                        self.tries += 1
                         data = -1
                     self.prog[self.get_index(i + 1, mode1)] = data
                     i += 2
@@ -64,9 +102,9 @@ class Computer:
                     if len(self.outputs) == 3:
                         a, x, y = self.outputs
                         if a == 255:
-                            print("Result:", y)
-                            done = True
-                        self.computers[a].inputs.extend([x, y])
+                            self.computers[50].inputs.append([x, y])
+                        else:
+                            self.computers[a].inputs.extend([x, y])
                         self.outputs = []
                     i += 2
                 elif op == 5:
@@ -117,7 +155,7 @@ class Computer:
 
 
 if __name__ == "__main__":
-    print(solve("input.txt"))
+    solve("input.txt")
 
 
 
