@@ -67,7 +67,6 @@ def calc(i):
                     val = process_items.pop(0)
                     if val == "break":
                         val = "north"
-                        input("Trying next")
                         print('Items:', current_items)
                     elif val.startswith("take"):
                         current_items.append("".join(val.split()[1:]))
