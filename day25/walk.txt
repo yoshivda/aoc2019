@@ -1,0 +1,39 @@
+1
+take jam
+2
+take shell
+0
+1
+take fuel cell
+3
+3
+2
+3
+take easter egg
+0
+1
+take space heater
+3
+2
+3
+3
+take monolith
+2
+3
+0
+take coin
+2
+1
+0
+3
+take mug
+0
+drop coin
+drop easter egg
+drop monolith
+drop jam
+drop mug
+drop shell
+drop space heater
+drop fuel cell
+try
